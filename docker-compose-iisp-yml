@@ -1,1 +1,78 @@
 
+services:
+  mongo:
+    image: mongo:7
+    container_name: iisp-mongo
+    restart: unless-stopped
+    command: ["mongod", "--bind_ip_all"]
+    labels:
+      platform: "iisp"
+      iispType: "system"
+    ports:
+      - "5001:27017"       # host -> container
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${SG_MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${SG_MONGO_ROOT_PASSWORD}
+    volumes:
+      - ./iisp-volumes/mongo/data:/data/db
+    networks:
+      - iisp-net
+
+  redis:
+    image: redis:7
+    container_name: iisp-redis
+    restart: unless-stopped
+    labels:
+      platform: "iisp"
+      iispType: "system"
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--requirepass", "${SG_REDIS_PASSWORD}"
+    ]
+    ports:
+      - "5002:6379"       
+    volumes:
+      - ./iisp-volumes/redis/data:/data
+    networks:
+      - iisp-net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: iisp-rabbitmq
+    restart: unless-stopped
+    labels:
+      platform: "iisp"
+      iispType: "system"
+    ports:
+      - "5003:5672"    
+      - "6001:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: ${SG_RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${SG_RABBIT_PASSWORD}
+      RABBITMQ_DEFAULT_VHOST: ${SG_RABBIT_VHOST:-/}
+    volumes:
+      - ./iisp-volumes/rabbit/data:/var/lib/rabbitmq
+    networks:
+      - iisp-net
+
+  nodered:
+    image: nodered/node-red:latest
+    container_name: iisp-nodered
+    restart: unless-stopped
+    labels:
+      platform: "iisp"
+      iispType: "system"
+    ports:
+      - "6002:1880"
+    environment:
+      NODERED_HTTP_PORT: ${SG_NODERED_PORT:-1880}
+    volumes:
+      - ./iisp-volumes/nodered/data:/data
+      - ./nodered/settings.js:/data/settings.js
+    networks:
+      - iisp-net
+
+networks:
+  iisp-net:
+    external: true
