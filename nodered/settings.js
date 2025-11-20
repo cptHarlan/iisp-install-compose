@@ -4,7 +4,7 @@ module.exports = {
         type: "credentials",
         users: [{
             username: "admin",
-            password: "$2b$08$4o/6HNUkaRO3COMD6QjKOONt1mKx5RwWFA7pN7a7JMBF73qOJr9qG", //Stegra18
+            password: "$2b$08$6/vIJvjG7Dr0DXYnjt0Kd.xOyibFnEoHKT2F2jpQA3i02fP.fMGbu", //Stegra18
             permissions: "*"
         }]
     },
